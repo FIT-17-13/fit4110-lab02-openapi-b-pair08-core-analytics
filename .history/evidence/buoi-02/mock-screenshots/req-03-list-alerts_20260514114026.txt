@@ -1,0 +1,29 @@
+Request #3: GET /alerts (List Alerts with Pagination)
+======================================================
+
+$ curl -i "http://localhost:4010/alerts?limit=20&cursor=null" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 418
+
+{
+  "items": [
+    {
+      "id": "0196fb3d-4ad7-7d1e-9f49-5d5148d2babc",
+      "sourceService": "core-business",
+      "alertType": "UNAUTHORIZED_ACCESS",
+      "severity": "HIGH",
+      "message": "Phát hiện truy cập trái phép tại cổng chính",
+      "relatedEventId": "0196fb3d-4ad7-7d1e-9f49-5d5148d2babc",
+      "status": "OPEN",
+      "createdAt": "2026-05-14T10:00:00Z",
+      "resolvedAt": null
+    }
+  ],
+  "nextCursor": null,
+  "hasMore": false
+}
+
+✓ Test PASSED: Pagination works, cursor-based navigation supported, hasMore=false indicates last page

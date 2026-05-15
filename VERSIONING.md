@@ -1,0 +1,177 @@
+# VERSIONING — API Contract & Implementation History
+
+## API Version: 1.0.0
+
+- **Release Date:** 2026-05-14
+- **Status:** Proposed
+- **Partner:** Core Business ↔ Analytics
+- **Type:** Queue Async Event Streaming
+
+---
+
+## Changelog v1.0.0
+
+### New Events Introduced
+
+#### `policy.decision.created` (v1.0)
+
+- **Description:** Fired when Core Business makes an access policy decision
+- **Schema:**
+  - `eventId`: UUID (unique)
+  - `decisionId`: UUID (policy decision identifier)
+  - `policyId`: UUID (policy applied)
+  - `subjectId`: String (user/device)
+  - `result`: Enum [ALLOW, DENY, DEFER]
+  - `reason`: String (policy rule name)
+  - `timestamp`: RFC3339 (UTC, microsecond)
+  - `correlationId`: UUID (optional, for tracing)
+  - `eventSchemaVersion`: "1.0"
+- **Delivery:** At-Least-Once
+- **Partition:** By `subjectId` (maintain order per subject)
+- **Rate:** Expected ~1000-2000 events/min during peak
+
+#### `alert.created` (v1.0)
+
+- **Description:** Fired when anomaly/threat is detected
+- **Schema:**
+  - `eventId`: UUID (unique)
+  - `alertId`: UUID (alert identifier)
+  - `alertType`: Enum [UNAUTHORIZED_ACCESS, SENSOR_THRESHOLD_EXCEEDED, UNKNOWN_PERSON, SYSTEM_ERROR]
+  - `severity`: Enum [LOW, MEDIUM, HIGH, CRITICAL]
+  - `message`: String (human-readable description)
+  - `sourceService`: String (always "core-business" in v1.0)
+  - `timestamp`: RFC3339 (UTC, microsecond)
+  - `relatedEventId`: UUID (optional, linked event)
+  - `eventSchemaVersion`: "1.0"
+- **Delivery:** At-Least-Once
+- **Partition:** By `alertId` (maintain order per alert)
+- **Rate:** Expected ~100-500 events/min during peak
+
+#### `alert.resolved` (v1.0)
+
+- **Description:** Fired when alert is acknowledged/resolved
+- **Schema:**
+  - `eventId`: UUID (unique)
+  - `alertId`: UUID (alert being resolved, must match alert.created)
+  - `resolvedAt`: RFC3339 (UTC, microsecond)
+  - `reason`: String (why it was resolved)
+  - `duration`: Integer (optional, seconds from create to resolve)
+  - `handledBy`: String (optional, who/what resolved it)
+  - `eventSchemaVersion`: "1.0"
+- **Delivery:** At-Least-Once
+- **Partition:** By `alertId` (maintain FIFO with alert.created)
+- **Rate:** Expected ~50-300 events/min
+
+---
+
+## Contract Compliance Checklist
+
+- ✅ All events include unique `eventId` (UUID v4)
+- ✅ All events include `timestamp` in RFC3339 format
+- ✅ All events include `eventSchemaVersion` for future compatibility
+- ✅ Authentication via API Key header (X-API-Key)
+- ✅ Schema validation enforced by message broker
+- ✅ At-Least-Once delivery guarantee
+- ✅ Per-resource FIFO ordering (alert events maintain sequence)
+- ✅ Duplicate detection: Consumer cache eventId 30 days
+- ✅ Out-of-order handling: Consumer buffers unmatched `alert.resolved` for 5 minutes
+- ✅ Retry policy: Exponential backoff 5s → 30s → 300s, max 3 attempts
+- ✅ Queue retention: 24 hours minimum
+- ✅ Rate limit: 5000 events/minute per consumer
+- ✅ Backward compatibility: Optional fields only in v1.0
+
+---
+
+## Future Versions (Roadmap)
+
+### v1.1 (Q3 2026 — Proposed)
+
+- Add `metadata` object for custom attributes
+- Add event encryption option (TLS by default)
+- Support webhook alternative transport (HTTP callback)
+
+### v2.0 (Q4 2026 — Proposed)
+
+- **Breaking:** Rename `sourceService` to `originService` for consistency
+- Add `causality` array to track related events across services
+- Change `eventSchemaVersion` behavior for content negotiation
+- Support event sampling/filtering policies
+
+---
+
+## Implementation Notes
+
+### Core Business (Provider)
+
+- Implement event schema validation before publish
+- Add `eventId` generation (UUID v4, cryptographically secure)
+- Timestamp must use system clock (NTP synchronized)
+- Log all event publishes with API Key + event summary
+- Implement retry mechanism with exponential backoff
+- Monitor queue depth and alert if > 100k events
+
+### Analytics (Consumer)
+
+- Validate `eventId` against 30-day cache before processing
+- Parse `timestamp` using RFC3339 library (not naive parsing)
+- Implement out-of-order buffer for alert.resolved events (5 min TTL)
+- Store events in audit log for 30 days minimum
+- Report consumption metrics: lag, dedup count, orphaned events
+- Send heartbeat every 6 hours
+
+---
+
+## Testing & Validation
+
+### Smoke Tests (v1.0)
+
+- [ ] Event schema validation passes Avro/JSON Schema
+- [ ] All required fields present in examples
+- [ ] Timestamp format validates RFC3339
+- [ ] UUID format validates UUID v4
+- [ ] Enum values match specification
+- [ ] Optional fields handle null gracefully
+
+### Integration Tests
+
+- [ ] End-to-end: policy.decision → KPI metric in Analytics ✓
+- [ ] End-to-end: alert.created → alert.resolved → MTTR calculated ✓
+- [ ] Duplicate resilience: send same event 3x, KPI unchanged ✓
+- [ ] Out-of-order: alert.resolved before alert.created, reconcile ✓
+- [ ] Failure recovery: Consumer offline 30 min, Consumer replay events ✓
+
+### Load Tests
+
+- [ ] Sustain 5000 events/minute for 10 minutes
+- [ ] Latency p99 < 500ms event-to-database
+- [ ] No data loss under normal + failure conditions
+- [ ] Dedup performance < 1ms per event
+
+---
+
+## Deprecation Policy
+
+- Minor versions (v1.1, v1.2): Support 12 months from release
+- Major versions (v2.0): Support 18 months from release
+- Deprecation notice: 6 months prior to support ending
+- Migration guide provided with release notes
+
+---
+
+## Audit & Compliance
+
+- All events logged with timestamp + API Key + source
+- Audit trail retention: 90 days
+- PII handling: `subjectId` may contain user ID — secure by policy
+- Data classification: Internal (Core Business only)
+- DLP scanning: Check `message` field for sensitive data patterns
+
+---
+
+## References
+
+- **Lab 02 Guide:** [docs/lab02-guide.md](docs/lab02-guide.md)
+- **Event Contract Template:** [docs/event-contract-template.md](docs/event-contract-template.md)
+- **Negotiation Log:** [negotiation-log.md](negotiation-log.md)
+- **Provider Analysis:** [docs/analysis-provider.md](docs/analysis-provider.md)
+- **Consumer Analysis:** [docs/analysis-consumer.md](docs/analysis-consumer.md)

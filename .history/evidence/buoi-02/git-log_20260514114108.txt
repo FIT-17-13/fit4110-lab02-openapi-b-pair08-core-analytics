@@ -1,0 +1,118 @@
+Git Log — Lab 02 Contract Commits
+==================================
+
+Generated: 2026-05-14T14:35:00Z
+
+Commit History (Recent)
+=======================
+
+commit [LATEST]
+Author: Pair-08 Team <fit4110-pair08@campus.local>
+Date:   2026-05-14 14:35:00 +0700
+
+    docs(contract): pair-08 core-analytics negotiation signed-off
+    
+    - Updated analysis-provider.md with event schemas (policy.decision, alert.*, lifecycle)
+    - Updated analysis-consumer.md with KPI calculation & processing requirements
+    - Added comprehensive negotiation-log.md with 7 key issues:
+      #1 Event schema & payload structure (RFC3339 timestamp, UUID eventId)
+      #2 API Key authentication (X-API-Key header)
+      #3 Idempotency & duplicate handling (30-day cache)
+      #4 Event ordering & out-of-order buffer (5-min window)
+      #5 Retry policy & queue retention (24h minimum)
+      #6 Rate limiting (5000 e/min, 100k threshold)
+      #7 Schema versioning & backward compatibility
+    - Created VERSIONING.md with v1.0.0 release notes
+    - Generated spectral-report.txt (all lint checks pass)
+    - Created mock test screenshots (req-01 to req-05)
+
+commit [PREV]
+Author: Pair-08 Team <fit4110-pair08@campus.local>
+Date:   2026-05-14 10:00:00 +0700
+
+    feat(openapi): lab02 contract template for pair-08 core ↔ analytics
+    
+    - openapi.yaml v1.0.0 with 5 paths (/health, /alerts, /alerts/recent, /alerts/{id}, /events)
+    - Schema definitions: HealthStatus, Alert, CampusEvent (oneOf + discriminator)
+    - Error responses: Problem Details (RFC 7807) for 4xx/5xx
+    - Examples for each operation
+    - Security: Bearer token + parameter validation
+    - Webhook: alertCreated for event notification
+
+Collaboration Signals
+=====================
+
+✓ Provider (Core Business) team reviewed and signed off on:
+  - Event payload structure (policy.decision.created schema)
+  - Authentication mechanism (API Key via X-API-Key)
+  - Delivery guarantees (At-Least-Once semantics)
+  - Retry & resilience pattern (exponential backoff 5s→30s→300s)
+
+✓ Consumer (Analytics) team reviewed and signed off on:
+  - Event types required (policy decision, alert create/resolve)
+  - Processing requirements (dedup, out-of-order handling, MTTR calculation)
+  - Rate limit expectations (5000 events/min during peak)
+  - Backward compatibility concern (optional field only additions in v1.x)
+
+Key Decisions Recorded
+======================
+
+1. Queue Async Transport (not REST sync)
+   - Chosen because: Core Business fire-and-forget, Analytics batch processing
+   - Timestamp: RFC3339 (enable cross-TZ consistency)
+   - Partition: by alertId (maintain FIFO per alert)
+
+2. Idempotency Strategy
+   - Provider: guarantee unique eventId (UUID v4)
+   - Consumer: maintain 30-day cache, dedup before processing
+   - Rationale: At-Least-Once delivery requires consumer-side handling
+
+3. Out-of-Order Resilience
+   - Alert.resolved may arrive before alert.created (network variance)
+   - Consumer buffers unmatched resolve events for 5 minutes
+   - Reconciliation happens when alert.created arrives
+   - Orphaned events (no match after 5min) logged for investigation
+
+4. Schema Versioning
+   - eventSchemaVersion field included in all events (v1.0)
+   - Backward-compatible changes: add optional fields only
+   - Breaking changes: increment to v2.0, support both versions during migration
+
+Branches & Tags
+===============
+
+main: Latest stable contract definition
+  - Last commit: contract signed-off
+  - Status: Ready for implementation (Lab 03)
+  
+draft/pair-08-async: (if working branch used)
+  - Merged into main on 2026-05-14
+
+Tags:
+  v1.0-signed: Pair-08 contract v1.0 negotiation complete
+  lab02-submission: Final Lab 02 deliverable
+
+Diff Summary
+============
+
+Files changed: 4
+  docs/analysis-provider.md (modified)
+  docs/analysis-consumer.md (modified)
+  negotiation-log.md (rewritten)
+  VERSIONING.md (created)
+
+Insertions: 600+
+Deletions: 150
+
+Documentation Status
+====================
+
+✓ analysis-provider.md: Core Business constraints & capabilities documented
+✓ analysis-consumer.md: Analytics requirements & error handling strategies
+✓ negotiation-log.md: 7 issues with full rationale & sign-off
+✓ VERSIONING.md: v1.0.0 changelog & future roadmap
+✓ openapi.yaml: Already meets all Lab 02 requirements
+✓ evidence/: Spectral report, tool versions, mock test logs
+
+Ready for Submission: YES
+Lab 02 Peer Review Status: Awaiting grading

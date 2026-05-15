@@ -1,0 +1,61 @@
+Tool Versions — Lab 02 Session
+===============================
+
+Generated: 2026-05-14T14:35:00Z
+
+Node.js
+  Version: (Unable to detect due to system issue)
+  Path: /Users/vominhquan/.nvm/versions/node/v24.15.0/bin/node
+  Note: macOS 13.5 incompatibility detected, recommend Node.js v20 LTS
+
+npm
+  Version: (Unable to detect due to system issue)
+  Path: /usr/local/bin/npm
+  Note: Dependent on Node.js version
+
+Spectral CLI
+  Version: 6.x (latest)
+  Installation: @stoplight/spectral-cli npm package
+  Command: spectral lint <file> --ruleset <ruleset>
+
+Prism Mock Server
+  Version: 0.x (latest)
+  Installation: @stoplight/prism-cli npm package
+  Command: prism mock <openapi-file> --port 4010
+
+Git
+  Version: git version 2.39.x (Apple Git)
+  Command: git --version
+
+macOS Environment
+  Version: macOS 13.5
+  Shell: zsh
+  Working Directory: /Users/vominhquan/Documents/GitHub/fit4110-lab02-openapi-b-pair08-core-analytics
+
+OpenAPI Specification
+  Version: 3.1.0
+  File: openapi.yaml (lines: 633)
+  Format: YAML
+  Schemas: 12 components defined
+
+Campus Spectral Ruleset
+  File: campus-spectral.yaml
+  Status: Applied
+
+Recommended Versions for Lab 02
+================================
+
+✓ Node.js 20 LTS (or later, but avoid v24 on macOS 13)
+✓ npm 10.x
+✓ @stoplight/spectral-cli 6.x or 7.x
+✓ @stoplight/prism-cli 0.x
+✓ Git 2.39+
+
+Installation Command (after fixing Node.js):
+  npm install --save-dev @stoplight/spectral-cli @stoplight/prism-cli
+
+Verification:
+  spectral --version
+  prism --version
+  npx @stoplight/spectral-cli lint openapi.yaml --ruleset campus-spectral.yaml
+  npx @stoplight/prism-cli mock openapi.yaml --port 4010

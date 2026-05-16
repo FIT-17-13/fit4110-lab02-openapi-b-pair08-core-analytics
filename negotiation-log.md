@@ -346,45 +346,12 @@
 }
 ```
 
-- Endpoint:
-- Concern:
-- Proposal:
-- Resolution: Accepted / Rejected / Modified
-- Rationale:
-- Impact:
-
----
-
-## Issue #5
-
-- Raised by: Consumer / Provider
-- Endpoint:
-- Concern:
-- Proposal:
-- Resolution: Accepted / Rejected / Modified
-- Rationale:
-- Impact:
-
----
-
-## Issue #6
-
-- Raised by: Consumer / Provider
-- Endpoint:
-- Concern:
-- Proposal:
-- Resolution: Accepted / Rejected / Modified
-- Rationale:
-- Impact:
-
----
-
 # Chốt hợp đồng v1.0
 
-Provider sign-off:  
-Consumer sign-off:  
-Witness (GV/TA):  
-Date:
+Provider sign-off: Core Business Team  
+Consumer sign-off: Analytics Team  
+Witness (GV/TA): N/A  
+Date: 2026-05-14
 
 ---
 
@@ -392,4 +359,4 @@ Date:
 
 | Warning | Lý do chấp nhận tạm thời | Kế hoạch sửa |
 | ------- | ------------------------ | ------------ |
-|         |                          |              |
+| None    | N/A                      | N/A          |

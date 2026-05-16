@@ -73,9 +73,9 @@
 
 ## 5. Câu hỏi cho Provider
 
-1.
-2.
-3.
+1. Provider có cam kết FIFO theo `alertId` và `subjectId` không?
+2. Provider có gửi `eventSchemaVersion` cố định "1.0" và thông báo trước khi bump version không?
+3. Provider có hỗ trợ replay event khi Consumer outage (retention tối thiểu 24h) không?
 
 ---
 

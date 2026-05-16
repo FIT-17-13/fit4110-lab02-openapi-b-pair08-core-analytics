@@ -88,15 +88,15 @@
 - **Retry Policy:** Exponential backoff 5s → 30s → 300s, max 3 lần
 - **Rate Limit:** Tối đa 5000 event/phút per Consumer
 - **SLA:** 99.5% event delivery dalam 5 phút
-- Giả định 3:
+- **Payload size:** Tối đa 256 KB mỗi event để tránh timeout.
 
 ---
 
 ## 5. Câu hỏi cho Consumer
 
-1.
-2.
-3.
+1. Analytics có chấp nhận `correlationId` là optional (có thể null) cho mọi event không?
+2. Analytics có cần hỗ trợ batch (nhiều event trong 1 request) hay chỉ 1 event/request?
+3. Analytics có yêu cầu chuẩn hóa cấu trúc `metadata` hay chấp nhận schema mở?
 
 ---
 
